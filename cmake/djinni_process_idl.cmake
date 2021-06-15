@@ -53,34 +53,52 @@ macro(djinni_process_idl)
 
     set(djinni_args
         --idl ${_idldef_DJINNI_IDL_FILE}
-        --objc-type-prefix Cpp
         --cpp-out ${arg_cpp_out}
         --cpp-header-out ${arg_cpp_header_out}
         --cpp-include-prefix ${namespace_path}/cpp/
+        --cpp-namespace ${_idldef_NAMESPACE}
+        --ident-cpp-file FooBar
+
+        --list-out-files ${_idldef_LIST_OUT_FILE}
+
+        --yaml-out ${arg_yaml_out}
+    )
+
+    set(djinni_java_args
         --jni-out ${arg_jni_out}
         --jni-header-out ${arg_jni_header_out}
         --jni-include-prefix ${namespace_path}/jni/
         --jni-include-cpp-prefix ${namespace_path}/cpp/
-        --objc-out ${arg_objc_out}
-        --objc-header-out ${arg_objc_header_out}
-        --objc-include-prefix ${namespace_path}/objc/
-        --objcpp-out ${arg_objcpp_out}
-        --objcpp-include-objc-prefix ${namespace_path}/objc/
-        --objcpp-include-cpp-prefix ${namespace_path}/cpp/
         --java-out ${arg_java_out}
         --java-package ${_idldef_JAVA_PACKAGE}
-        --cpp-namespace ${_idldef_NAMESPACE}
-        --objcpp-namespace ${_idldef_NAMESPACE}::oc
-        --yaml-out ${arg_yaml_out}
-        --list-out-files ${_idldef_LIST_OUT_FILE}
-        --objc-swift-bridging-header ${name_wle}-umbrella
-        --ident-cpp-file FooBar
+    )
+
+    if (APPLE)
+      set(djinni_oc_args
+          --objc-type-prefix Cpp
+          --objc-out ${arg_objc_out}
+          --objc-header-out ${arg_objc_header_out}
+          --objc-include-prefix ${namespace_path}/objc/
+          --objcpp-out ${arg_objcpp_out}
+          --objcpp-include-objc-prefix ${namespace_path}/objc/
+          --objcpp-include-cpp-prefix ${namespace_path}/cpp/
+          --objcpp-namespace ${_idldef_NAMESPACE}::oc
+          --objc-swift-bridging-header ${name_wle}-umbrella
+      )
+    endif()
+
+    set(djinni_py_args
+      --py-out ${_idldef_GENARATED_OUT_DIR}/py/pyout
+      --pycffi-out ${_idldef_GENARATED_OUT_DIR}/py/pycffiout
+      --pycffi-package-name mylib
+      --pycffi-dynamic-lib-list mylib
+      --c-wrapper-out ${_idldef_GENARATED_OUT_DIR}/py/c
     )
 
     message("Generating djinni source files for ${name}")
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_LIST_DIR}/${_idldef_GENARATED_OUT_DIR}
-      COMMAND ${DJINNI_CMD} ${djinni_args}
+      COMMAND ${DJINNI_CMD} ${djinni_args} ${djinni_java_args} ${djinni_oc_args} ${djinni_py_args}
       WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
       COMMAND_ERROR_IS_FATAL LAST
       #COMMAND_ECHO STDOUT

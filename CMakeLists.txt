@@ -49,38 +49,40 @@ add_library(storage
     src/storage.cpp
 )
 
-set_target_properties(storage PROPERTIES
-  OUTPUT_NAME "DjinniStorage"
-  FRAMEWORK TRUE
+if(APPLE)
 
-  MACOSX_BUNDLE TRUE
+  set_target_properties(storage PROPERTIES
+    OUTPUT_NAME "DjinniStorage"
+    FRAMEWORK TRUE
 
-  XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC TRUE
+    MACOSX_BUNDLE TRUE
 
-#  MACOSX_FRAMEWORK_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/cmake/MacOSXBundleInfo.plist.in"
-  # "current version" in semantic format in Mach-O binary file
-  #        MACOSX_BUNDLE_BUNDLE_NAME "DjinniStorage"
-  #        MACOSX_FRAMEWORK_IDENTIFIER "dev.xlcpp.djinni.storage"
+    XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC TRUE
 
-  #FRAMEWORK_VERSION C # TODO, a b c ..? only MacOS !
+  #  MACOSX_FRAMEWORK_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/cmake/MacOSXBundleInfo.plist.in"
+    # "current version" in semantic format in Mach-O binary file
+    #        MACOSX_BUNDLE_BUNDLE_NAME "DjinniStorage"
+    #        MACOSX_FRAMEWORK_IDENTIFIER "dev.xlcpp.djinni.storage"
 
-  VERSION 0.0.0
-  # "compatibility version" in semantic format in Mach-O binary file
-  SOVERSION 0.0.0
+    #FRAMEWORK_VERSION C # TODO, a b c ..? only MacOS !
 
-  PUBLIC_HEADER "${objec_header_generated}"
+    VERSION 0.0.0
+    # "compatibility version" in semantic format in Mach-O binary file
+    SOVERSION 0.0.0
 
-  RESOURCE "${BUNDLE_RESOURCES}"
+    PUBLIC_HEADER "${objec_header_generated}"
 
-#    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${APPLE_ID_DEVELOPMENT_TEAM}
-)
+    RESOURCE "${BUNDLE_RESOURCES}"
 
+  #    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${APPLE_ID_DEVELOPMENT_TEAM}
+  )
+  target_compile_options(storage PRIVATE -fobjc-arc)
+  target_link_libraries(storage PUBLIC "-framework Foundation")
+endif()
 
 target_include_directories(storage PUBLIC generated/include)
 target_include_directories(storage PRIVATE ${JNI_INCLUDE_DIRS})
-target_compile_options(storage PRIVATE -fobjc-arc)
-target_link_libraries(storage PUBLIC djinni-support-lib::djinni-support-lib  "-framework Foundation")
-
+target_link_libraries(storage PUBLIC djinni-support-lib::djinni-support-lib)
 
 
 find_package(Java REQUIRED)
