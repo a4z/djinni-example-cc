@@ -41,10 +41,13 @@ add_library(storage
     ${DJINI_STORAGE_JNI_SOURCE}
     ${DJINI_STORAGE_OBJC_SOURCE}
     ${DJINI_STORAGE_OBJCPP_SOURCE}
+    ${DJINI_STORAGEC_WRAPPER_CPP_FILES}
     # until source groups added
     ${DJINI_STORAGE_OBJC_HEADER}
     ${DJINI_STORAGE_JNI_HEADER}
     ${DJINI_STORAGE_CPP_HEADER}
+    ${DJINI_STORAGEC_WRAPPER_C_HEADER}
+
     # our implementation
     src/storage.cpp
 )

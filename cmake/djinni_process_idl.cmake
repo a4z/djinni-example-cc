@@ -50,6 +50,9 @@ macro(djinni_process_idl)
     set(arg_objcpp_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/objcpp/)
     set(arg_java_out ${_idldef_GENARATED_OUT_DIR}/${javapath})
     set(arg_yaml_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/yaml/${name}.yaml)
+    set(arg_c_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/c/)
+    set(arg_pycffi_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/pycffi/)
+    set(arg_python_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/py/)
 
     set(djinni_args
         --idl ${_idldef_DJINNI_IDL_FILE}
@@ -88,17 +91,21 @@ macro(djinni_process_idl)
     endif()
 
     set(djinni_py_args
-      --py-out ${_idldef_GENARATED_OUT_DIR}/py/pyout
-      --pycffi-out ${_idldef_GENARATED_OUT_DIR}/py/pycffiout
-      --pycffi-package-name mylib
-      --pycffi-dynamic-lib-list mylib
-      --c-wrapper-out ${_idldef_GENARATED_OUT_DIR}/py/c
+      --py-out ${arg_python_out}
+      --pycffi-package-name storage
+      --pycffi-dynamic-lib-list storage
+      --pycffi-out ${arg_pycffi_out}
+
+    )
+
+    set(djinni_c_args
+      --c-wrapper-out ${arg_c_out}
     )
 
     message("Generating djinni source files for ${name}")
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_LIST_DIR}/${_idldef_GENARATED_OUT_DIR}
-      COMMAND ${DJINNI_CMD} ${djinni_args} ${djinni_java_args} ${djinni_oc_args} ${djinni_py_args}
+      COMMAND ${DJINNI_CMD} ${djinni_args} ${djinni_java_args} ${djinni_oc_args} ${djinni_py_args} ${djinni_c_args}
       WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
       COMMAND_ERROR_IS_FATAL LAST
       #COMMAND_ECHO STDOUT
@@ -117,6 +124,8 @@ macro(djinni_process_idl)
     set(OBJC_HEADER "")
     set(OBJCPP_SOURCE "")
     set(JAVA_SOURCE "")
+    set(C_WRAPPER_CPP_FILES "")
+    set(C_WRAPPER_C_HEADER "")
 
     foreach(item ${generated_files})
       if(item MATCHES "^${arg_cpp_out}")
@@ -135,7 +144,15 @@ macro(djinni_process_idl)
         list(APPEND OBJCPP_SOURCE ${item})
       elseif(item MATCHES "^${arg_java_out}")
         list(APPEND JAVA_SOURCE ${item})
+      elseif(item MATCHES "^${arg_c_out}")
+        if (item MATCHES "\\.h$")
+          list(APPEND C_WRAPPER_C_HEADER ${item})
+        else()
+          list(APPEND C_WRAPPER_CPP_FILES ${item})
+        endif()
       elseif(item MATCHES "^${arg_yaml_out}")
+      elseif(item MATCHES "^${arg_python_out}")
+      elseif(item MATCHES "^${arg_pycffi_out}")
         # ignore
       else()
         message(WARNING "Unhandled generated file: " ${item})
@@ -151,7 +168,8 @@ macro(djinni_process_idl)
     string (REPLACE ";" " " OBJC_HEADER "${OBJC_HEADER}")
     string (REPLACE ";" " " OBJCPP_SOURCE "${OBJCPP_SOURCE}")
     string (REPLACE ";" " " JAVA_SOURCE "${JAVA_SOURCE}")
-
+    string (REPLACE ";" " " C_WRAPPER_C_HEADER "${C_WRAPPER_C_HEADER}")
+    string (REPLACE ";" " " C_WRAPPER_CPP_FILES "${C_WRAPPER_CPP_FILES}")
 
     configure_file(${djinni_cmake_utils_dir}/djinni_generated_files.cmake.in
                   ${OUT_FILE}
