@@ -61,7 +61,6 @@ macro(djinni_process_idl)
         --cpp-include-prefix ${namespace_path}/cpp/
         --cpp-namespace ${_idldef_NAMESPACE}
         --ident-cpp-file FooBar
-
         --list-out-files ${_idldef_LIST_OUT_FILE}
 
         --yaml-out ${arg_yaml_out}
@@ -100,6 +99,8 @@ macro(djinni_process_idl)
 
     set(djinni_c_args
       --c-wrapper-out ${arg_c_out}
+      --c-wrapper-include-cpp-prefix ${namespace_path}/cpp/
+
     )
 
     message("Generating djinni source files for ${name}")
