@@ -8,7 +8,7 @@ djinni-support-lib:with_objc=True
 djinni-support-lib:with_python=True
 
 [build_requires]
-# djinni-generator/1.3.0
+djinni-generator/1.3.0
 # zulu-openjdk/11.0.12
 
 [generators]
