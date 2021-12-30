@@ -87,7 +87,7 @@ macro(djinni_process_idl)
         --py-out ${arg_py_out}
         --pycffi-out ${arg_pycffi_out}
         --pycffi-package-name cpplib
-        --pycffi-dynamic-lib-list DjinniStorage
+        --pycffi-dynamic-lib-list storage_c
         # --py-import-prefix NOTUSED
         --list-out-files ${_idldef_LIST_OUT_FILE}
         --objc-swift-bridging-header ${name_wle}-umbrella
