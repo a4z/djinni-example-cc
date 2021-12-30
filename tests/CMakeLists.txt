@@ -1,10 +1,17 @@
-enable_language(OBJC)
+# enable_language(OBJC)
+# if(APPLE)
+#     set(MACOSX_RPATH TRUE)
+#     #set(CMAKE_MACOSX_RPATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+#     set(CMAKE_MACOSX_RPATH "@executable_path/../lib")
+
+# endif()
+
+
 if(APPLE)
     set(MACOSX_RPATH TRUE)
-    #set(CMAKE_MACOSX_RPATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-    set(CMAKE_MACOSX_RPATH "@executable_path/../lib")
-
+    set(CMAKE_MACOSX_RPATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 endif()
+
 
 
 add_subdirectory(cpp)

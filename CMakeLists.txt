@@ -5,6 +5,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+if(APPLE)
+    set(MACOSX_RPATH TRUE)
+    set(CMAKE_MACOSX_RPATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+endif()
+
+
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -17,6 +25,9 @@ find_package(JNI REQUIRED)
 
 
 include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+
+
+
 include(cmake/djinni_process_idl.cmake)
 
 djinni_process_idl(
@@ -34,22 +45,40 @@ include(${CMAKE_CURRENT_BINARY_DIR}/storage.djinni.cmake)
 find_package(djinni-support-lib)
 
 
-add_library(storage
+add_library(storage_base 
+  STATIC
+  ${DJINI_STORAGE_CPP_SOURCE}
+  ${DJINI_STORAGE_CPP_HEADER}
+  # our implementation
+  src/storage.cpp
+)
+
+add_library(storage_jni 
+  SHARED
+  ${DJINI_STORAGE_JNI_SOURCE}
+  ${DJINI_STORAGE_JNI_HEADER}
+)
+
+
+add_library(storage_oc
     SHARED
     # all genearted headers
-    ${DJINI_STORAGE_CPP_SOURCE}
-    ${DJINI_STORAGE_JNI_SOURCE}
     ${DJINI_STORAGE_OBJC_SOURCE}
     ${DJINI_STORAGE_OBJCPP_SOURCE}
     # until source groups added
     ${DJINI_STORAGE_OBJC_HEADER}
-    ${DJINI_STORAGE_JNI_HEADER}
-    ${DJINI_STORAGE_CPP_HEADER}
-    # our implementation
-    src/storage.cpp
 )
 
-set_target_properties(storage PROPERTIES
+
+add_library(storage_c
+    SHARED
+    ${DJINI_STORAGE_C_SOURCE}
+    ${DJINI_STORAGE_C_HEADER}
+)
+
+
+
+set_target_properties(storage_oc PROPERTIES
   OUTPUT_NAME "DjinniStorage"
   FRAMEWORK TRUE
 
@@ -76,12 +105,20 @@ set_target_properties(storage PROPERTIES
 )
 
 
-target_include_directories(storage PUBLIC generated/include)
-target_include_directories(storage PRIVATE ${JNI_INCLUDE_DIRS})
-target_compile_options(storage PRIVATE -fobjc-arc)
-target_link_libraries(storage PUBLIC djinni-support-lib::djinni-support-lib  "-framework Foundation")
+target_include_directories(storage_base PUBLIC generated/include)
 
+target_include_directories(storage_jni PRIVATE ${JNI_INCLUDE_DIRS})
+target_link_libraries(storage_jni PRIVATE storage_base)
+target_link_libraries(storage_jni PUBLIC djinni-support-lib::djinni-support-lib)
 
+target_compile_options(storage_oc PRIVATE -fobjc-arc)
+target_link_libraries(storage_oc PRIVATE storage_base)
+target_include_directories(storage_oc PUBLIC generated/include)
+target_link_libraries(storage_oc PUBLIC djinni-support-lib::djinni-support-lib  "-framework Foundation")
+
+target_link_libraries(storage_c PRIVATE storage_base)
+target_include_directories(storage_c PUBLIC generated/include)
+target_link_libraries(storage_c PUBLIC djinni-support-lib::djinni-support-lib)
 
 find_package(Java REQUIRED)
 include(UseJava)

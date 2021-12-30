@@ -51,6 +51,14 @@ macro(djinni_process_idl)
     set(arg_java_out ${_idldef_GENARATED_OUT_DIR}/${javapath})
     set(arg_yaml_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/yaml/${name}.yaml)
 
+    set(arg_c_wrapper_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/c/)
+    set(arg_c_wrapper_header_out ${_idldef_GENARATED_OUT_DIR}/include/${namespace_path}/c)
+
+    set(arg_py_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/python/)
+    set(arg_pycffi_out ${_idldef_GENARATED_OUT_DIR}/${namespace_path}/python_cffi/)
+    
+
+
     set(djinni_args
         --idl ${_idldef_DJINNI_IDL_FILE}
         --objc-type-prefix Cpp
@@ -65,6 +73,10 @@ macro(djinni_process_idl)
         --objc-header-out ${arg_objc_header_out}
         --objc-include-prefix ${namespace_path}/objc/
         --objcpp-out ${arg_objcpp_out}
+        --c-wrapper-out ${arg_c_wrapper_out}        
+        --c-wrapper-header-out ${arg_c_wrapper_header_out}
+        --c-wrapper-include-prefix ${namespace_path}/c/
+        --c-wrapper-include-cpp-prefix ${namespace_path}/cpp/
         --objcpp-include-objc-prefix ${namespace_path}/objc/
         --objcpp-include-cpp-prefix ${namespace_path}/cpp/
         --java-out ${arg_java_out}
@@ -72,6 +84,11 @@ macro(djinni_process_idl)
         --cpp-namespace ${_idldef_NAMESPACE}
         --objcpp-namespace ${_idldef_NAMESPACE}::oc
         --yaml-out ${arg_yaml_out}
+        --py-out ${arg_py_out}
+        --pycffi-out ${arg_pycffi_out}
+        --pycffi-package-name cpplib
+        --pycffi-dynamic-lib-list DjinniStorage
+        # --py-import-prefix NOTUSED
         --list-out-files ${_idldef_LIST_OUT_FILE}
         --objc-swift-bridging-header ${name_wle}-umbrella
         --ident-cpp-file FooBar
@@ -99,6 +116,10 @@ macro(djinni_process_idl)
     set(OBJC_HEADER "")
     set(OBJCPP_SOURCE "")
     set(JAVA_SOURCE "")
+    set(CPP_SOURCE "")
+    set(CPP_HEADER "")
+    set(PYTHON_SOURCE "")
+    set(PYTHON_SOURCE_DIR ${arg_py_out})
 
     foreach(item ${generated_files})
       if(item MATCHES "^${arg_cpp_out}")
@@ -117,8 +138,16 @@ macro(djinni_process_idl)
         list(APPEND OBJCPP_SOURCE ${item})
       elseif(item MATCHES "^${arg_java_out}")
         list(APPEND JAVA_SOURCE ${item})
+      elseif(item MATCHES "^${arg_c_wrapper_out}")
+        list(APPEND C_SOURCE ${item})        
+      elseif(item MATCHES "^${arg_c_wrapper_header_out}")
+        list(APPEND C_HEADER ${item})   
+      elseif(item MATCHES "^${arg_py_out}")
+        list(APPEND PYTHON_SOURCE ${item})                     
       elseif(item MATCHES "^${arg_yaml_out}")
         # ignore
+      elseif(item MATCHES "^${arg_pycffi_out}")
+        # ignore        
       else()
         message(WARNING "Unhandled generated file: " ${item})
       endif()
