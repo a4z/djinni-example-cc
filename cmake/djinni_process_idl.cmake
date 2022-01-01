@@ -86,7 +86,7 @@ macro(djinni_process_idl)
         --yaml-out ${arg_yaml_out}
         --py-out ${arg_py_out}
         --pycffi-out ${arg_pycffi_out}
-        --pycffi-package-name cpplib
+        --pycffi-package-name PyCFFIlib
         --pycffi-dynamic-lib-list storage_c
         # --py-import-prefix NOTUSED
         --list-out-files ${_idldef_LIST_OUT_FILE}

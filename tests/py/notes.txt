@@ -1,0 +1,27 @@
+
+for generator, 
+--pycffi-package-name PyCFFIlib
+PyCFFIlib is hardcoded everywhere, 
+support lib, generator, ....
+so that is ... not good,  to have an option and have that hardcoded
+
+ergo, also the pip is not usable atm
+
+this needs to be fixed, since having just 1 lib with a given name .... 
+
+also, the wrapper_marshal header needs to be available for running pycffi 
+if it comes via conan , bad luck since that makes it difficult 
+
+
+support_lib_root=$(conan info --profile default -o djinni-support-lib:with_jni=True -o djinni-support-lib:with_objc=True -o djinni-support-lib:with_python=True --path djinni-support-lib/1.2.0@ -j | gojq -r '.[] | .package_folder')
+
+to get the path to the include folder .... 
+
+which users can/will do that ? 
+
+
+so, the whole pip code should be generated
+and maybe even the wrapper_marshal.h ? 
+
+I have no idea how to make that all user friendly ....
+
